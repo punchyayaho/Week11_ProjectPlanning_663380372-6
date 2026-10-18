@@ -1,5 +1,6 @@
 # enhanced-task-manager-design/src/task_manager.py
 # No direct file I/O here, uses DataPersistence.
+import datetime
 from .task import Task, DueDateTask, PriorityTask
 from .data_persistence import DataPersistence
 
@@ -69,44 +70,46 @@ class TaskManager:
             return True, "Task deleted successfully."
         return False, "Task not found."
 
-    # --- New/Enhanced Features (Placeholders for future implementation) ---
+    # --- New/Enhanced Features (implemented from PLAN.md) ---
     def get_all_tasks(self):
         """Returns all tasks. Useful for listing."""
         return list(self.tasks)
 
     def search_tasks(self, keyword):
-        """
-        (Placeholder) Searches tasks by keyword in description or tags.
-        """
-        # Example of how it might work:
-        # return [task for task in self.tasks if keyword.lower() in task.description.lower()
-        #         or any(keyword.lower() in tag.lower() for tag in task.tags)]
-        print(f"DEBUG: Search functionality for '{keyword}' not yet implemented.")
-        return []
+        """Searches tasks by keyword in description or tags (case-insensitive)."""
+        kw = keyword.lower()
+        return [task for task in self.tasks
+                if kw in task.description.lower() or any(kw in tag.lower() for tag in task.tags)]
 
-    def filter_tasks(self, status=None, due_date_before=None, priority=None, tags=None):
+    def filter_tasks(self, status=None, due_date_before=None, priority=None, tag=None):
         """
-        (Placeholder) Filters tasks by various criteria.
+        Filters tasks by any combination of:
+          status (True=completed / False=pending), due_date_before (YYYY-MM-DD),
+          priority (High/Medium/Low), tag (single tag).
         """
-        # Example of how it might work:
-        # filtered = self.tasks
-        # if status is not None:
-        #     filtered = [t for t in filtered if t.completed == status]
-        # if due_date_before:
-        #     due_date_obj = datetime.datetime.strptime(due_date_before, '%Y-%m-%d').date()
-        #     filtered = [t for t in filtered if isinstance(t, DueDateTask) and t.due_date <= due_date_obj]
-        print("DEBUG: Filter functionality not yet implemented.")
-        return []
+        filtered = list(self.tasks)
+        if status is not None:
+            filtered = [t for t in filtered if t.completed == status]
+        if due_date_before:
+            limit = datetime.datetime.strptime(due_date_before, '%Y-%m-%d').date()
+            filtered = [t for t in filtered if isinstance(t, DueDateTask) and t.due_date <= limit]
+        if priority:
+            filtered = [t for t in filtered if isinstance(t, PriorityTask) and t.priority == priority]
+        if tag:
+            filtered = [t for t in filtered if tag.lower() in (x.lower() for x in t.tags)]
+        return filtered
 
     def sort_tasks(self, criterion="id", reverse=False):
         """
-        (Placeholder) Sorts tasks by a given criterion.
+        Sorts tasks by 'id', 'due_date' or 'priority'.
+        Tasks without the field (e.g. a normal task when sorting by due date) go last.
         """
-        # Example of how it might work:
-        # if criterion == "due_date":
-        #     return sorted(self.tasks, key=lambda t: t.due_date if isinstance(t, DueDateTask) else datetime.date.max, reverse=reverse)
-        # elif criterion == "priority":
-        #     priority_map = {"High": 1, "Medium": 2, "Low": 3}
-        #     return sorted(self.tasks, key=lambda t: priority_map.get(t.priority, 99) if isinstance(t, PriorityTask) else 99, reverse=reverse)
-        print(f"DEBUG: Sort functionality for '{criterion}' not yet implemented.")
-        return list(self.tasks)  # Just return unsorted for now
+        if criterion == "due_date":
+            dated = sorted([t for t in self.tasks if isinstance(t, DueDateTask)], key=lambda t: t.due_date, reverse=reverse)
+            return dated + [t for t in self.tasks if not isinstance(t, DueDateTask)]
+        if criterion == "priority":
+            order = {"High": 1, "Medium": 2, "Low": 3}
+            ranked = sorted([t for t in self.tasks if isinstance(t, PriorityTask)],
+                            key=lambda t: order.get(t.priority, 99), reverse=reverse)
+            return ranked + [t for t in self.tasks if not isinstance(t, PriorityTask)]
+        return sorted(self.tasks, key=lambda t: t.id, reverse=reverse)

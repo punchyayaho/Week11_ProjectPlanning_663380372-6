@@ -7,6 +7,12 @@ import os
 #  so they must be imported as part of the 'src' package.)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+# Make sure Thai text prints correctly on every console
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+except Exception:
+    pass
+
 # Import the main components of our application
 from src.task_manager import TaskManager
 from src.cli_interface import CLIInterface
