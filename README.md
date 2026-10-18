@@ -31,7 +31,7 @@ python main.py
 
 ## Project Structure
 ```
-enhanced-task-manager-design/
+Week11_ProjectPlanning/
 ├── src/
 │   ├── __init__.py
 │   ├── task.py               # Task models (includes tags field)
