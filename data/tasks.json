@@ -1,0 +1,33 @@
+[
+    {
+        "id": 1,
+        "description": "Read Week 11 PLAN.md",
+        "completed": true,
+        "tags": [
+            "planning",
+            "study"
+        ],
+        "_type": "Task"
+    },
+    {
+        "id": 2,
+        "description": "Submit Week 11 lab",
+        "completed": false,
+        "tags": [
+            "school",
+            "urgent"
+        ],
+        "_type": "DueDateTask",
+        "due_date": "2026-10-20"
+    },
+    {
+        "id": 3,
+        "description": "Push project to GitHub",
+        "completed": false,
+        "tags": [
+            "git"
+        ],
+        "_type": "PriorityTask",
+        "priority": "High"
+    }
+]
